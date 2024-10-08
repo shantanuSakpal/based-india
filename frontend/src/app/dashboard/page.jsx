@@ -8,9 +8,9 @@ import { GlobalContext } from "@/contexts/UserContext";
 
 const chainConfig = {
   2710: { name: 'Morph Testnet', logo: '/chain/morph-logo.jpeg' },
-  31: { name: 'RootStock Testnet', logo: '/chain/rootstock-logo.png' },
+  31: { name: 'RootStock Testnet', logo: '/chain/base-logo.png' },
   8008135: { name: 'Fhenix Helium', logo: '/chain/fhenix-logo.png' },
-  rootstock: { name: 'Chainlink', logo: '/chain/rootstock-logo.png' },
+  rootstock: { name: 'Chainlink', logo: '/chain/base-logo.png' },
   default: { name: 'Unknown Chain', logo: '/chain/hedera-logo.png' }
 };
 
