@@ -1,6 +1,6 @@
 import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
 import { cookieStorage, createStorage } from "wagmi";
-import { sepolia, Chain } from "wagmi/chains";
+import { Chain } from "wagmi/chains";
 
 // Ensure the WalletConnect project ID is defined
 export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
@@ -14,60 +14,82 @@ const metadata = {
     icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-// Rootstock Testnet configuration
-const rootstockTestnet: Chain = {
-    id: 31,
-    name: "Rootstock Testnet",
+// Base Mainnet configuration
+const baseMainnet: Chain = {
+    id: 8453,
+    name: "Base Mainnet",
     nativeCurrency: {
         decimals: 18,
-        name: "Rootstock Testnet Ether",
-        symbol: "tRSK",
-    },
-    rpcUrls: {
-        default: { http: ["https://rpc.testnet.rootstock.io/jggMDTcHMyqeQhJChAG7xhsjMIgLai-T"] }
-    },
-    blockExplorers: {
-        default: { name: "Rootstock Explorer", url: "https://explorer.testnet.rsk.co" },
-    },
-};
-
-// Galadriel Devnet configuration
-const galadriealDevnet: Chain = {
-    id: 696969,
-    name: "Galadriel Devnet",
-    nativeCurrency: {
-        decimals: 18,
-        name: "Galadriel",
-        symbol: "GAL",
-    },
-    rpcUrls: {
-        default: { http: ["https://devnet.galadriel.com"] }
-    },
-    blockExplorers: {
-        default: { name: "Galadriel Explorer", url: "https://explorer.galadriel.com" },
-    },
-};
-
-// Morph Holesky Testnet configuration
-const morphHoleskyTestnet: Chain = {
-    id: 2810,
-    name: "Morph Holesky Testnet",
-    nativeCurrency: {
-        decimals: 18,
-        name: "Morph Holesky Testnet Ether",
+        name: "Base",
         symbol: "ETH",
     },
     rpcUrls: {
-        default: { http: [`https://2810.rpc.thirdweb.com/${process.env.NEXT_PUBLIC_THIRDWEB_SECRETKEY}`] }
+        default: { http: ["https://base-rpc.publicnode.com"] },
     },
     blockExplorers: {
-        default: { name: "Morph Explorer", url: "https://explorer-holesky.morphl2.io" },
+        default: { name: "Base Explorer", url: "https://basescan.org" },
     },
 };
 
-// Export the configuration with chains included
+// Base Sepolia configuration
+const baseSepoliaTestnet: Chain = {
+    id: 84532,
+    name: "Base Sepolia",
+    nativeCurrency: {
+        decimals: 18,
+        name: "Sepolia Ether",
+        symbol: "ETH",
+    },
+    rpcUrls: {
+        default: { http: ["https://base-sepolia-rpc.publicnode.com"] },
+    },
+    blockExplorers: {
+        default: { name: "Base Sepolia Explorer", url: "https://sepolia.basescan.org" },
+    },
+};
+
+// Optimism Mainnet configuration
+const optimismMainnet: Chain = {
+    id: 10,
+    name: "Optimism",
+    nativeCurrency: {
+        decimals: 18,
+        name: "Optimism Ether",
+        symbol: "ETH",
+    },
+    rpcUrls: {
+        default: { http: ["https://optimism-rpc.publicnode.com"] },
+    },
+    blockExplorers: {
+        default: { name: "Optimism Explorer", url: "https://optimistic.etherscan.io" },
+    },
+};
+
+// Optimism Sepolia configuration
+const optimismSepoliaTestnet: Chain = {
+    id: 11155420,
+    name: "Optimism Sepolia",
+    nativeCurrency: {
+        decimals: 18,
+        name: "Sepolia Ether",
+        symbol: "ETH",
+    },
+    rpcUrls: {
+        default: { http: ["https://sepolia.optimism.io"] },
+    },
+    blockExplorers: {
+        default: { name: "Optimism Sepolia Explorer", url: "https://sepolia-optimism.etherscan.io" },
+    },
+};
+
+// Export the configuration with only the 4 chains included
 export const config = defaultWagmiConfig({
-    chains: [sepolia, galadriealDevnet, rootstockTestnet, morphHoleskyTestnet], // Add Morph Holesky Testnet here
+    chains: [
+        baseMainnet,
+        baseSepoliaTestnet,
+        optimismMainnet,
+        optimismSepoliaTestnet
+    ], 
     projectId,
     metadata,
     ssr: true,

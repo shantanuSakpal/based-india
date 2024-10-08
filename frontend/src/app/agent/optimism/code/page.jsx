@@ -106,13 +106,15 @@ export default function Editor() {
             const signer = provider.getSigner();
             console.log("Connected to MetaMask.");
     
-            // Check if the user is on the correct network (Base Testnet)
+            // Check if the user is on the correct network (Optimism Mainnet or Optimism Sepolia)
             const network = await provider.getNetwork();
-            if (network.chainId !== 31) {
-                toast.error("Please switch to the Base Testnet in MetaMask.");
+            console.log(network.chainId);
+    
+            if (network.chainId !== 10 && network.chainId !== 11155420) {
+                toast.error("Please switch to either Optimism Mainnet or Optimism Sepolia Testnet in MetaMask.");
                 return;
             }
-            // console.log("Connected to Base Testnet.");
+    
             setIsDeploying(true);
     
             // Create a new contract factory for deployment
@@ -123,13 +125,15 @@ export default function Editor() {
             const contract = await contractFactory.deploy();
             await contract.deployed();
     
-            // Get the block explorer URL
-            const blockExplorerUrl = `https://explorer.testnet.rsk.co/address/${contract.address}`;
-            
+            // Determine block explorer URL based on the network
+            const blockExplorerUrl = network.chainId === 10
+                ? `https://optimistic.etherscan.io/address/${contract.address}`
+                : `https://sepolia-optimism.etherscan.io/address/${contract.address}`;
+    
             const solidityCode = suggestions; // Assuming suggestions holds your Solidity code
             const fileName = `Contract_${contract.address}.sol`; // Generate a unique file name
             const solidityFilePath = await saveSolidityCode(solidityCode, fileName); // Save the Solidity code and get the file path
-
+    
             // Prepare contract data to save
             const contractData = {
                 chainId: network.chainId,
@@ -140,9 +144,8 @@ export default function Editor() {
                 solidityFilePath: solidityFilePath,
                 deploymentDate: new Date().toISOString(),
             };
-        
+    
             // Get user email from context
-            
             if (userData && userData.email) {
                 await saveContractData(contractData, userData.email);
             } else {
@@ -173,7 +176,7 @@ export default function Editor() {
             setIsDeploying(false);
         }
     };
-
+    
 
 
     const shortenAddress = (address) => {
@@ -274,7 +277,7 @@ export default function Editor() {
                     <Card className="flex-grow h-full p-6">
                         <div className="max-w-2xl bg-gray-100 p-4 rounded-lg shadow-md">
                             <div className="flex items-center space-x-4">
-                                <Avatar isBordered radius="md" src="/chain/base-logo.png"/>
+                                <Avatar isBordered radius="md" src="/chain/optimism-logo.png"/>
                                 <div className="flex-grow">
                                     {account.isConnected ? (
                                         <div className="flex items-center justify-between">

@@ -82,8 +82,6 @@ export default function Editor() {
       };
 
 
-
-    
       const DeployContract = async () => {
         if (!result || result.status !== "success") {
             toast.error("Please compile the contract successfully before deploying.");
@@ -106,13 +104,15 @@ export default function Editor() {
             const signer = provider.getSigner();
             console.log("Connected to MetaMask.");
     
-            // Check if the user is on the correct network (Base Testnet)
+            // Check if the user is on the correct network (Base Mainnet or Base Sepolia Testnet)
             const network = await provider.getNetwork();
-            if (network.chainId !== 31) {
-                toast.error("Please switch to the Base Testnet in MetaMask.");
+            console.log(network.chainId);
+    
+            if (network.chainId !== 8453 && network.chainId !== 84532) {
+                toast.error("Please switch to either Base Mainnet or Base Sepolia Testnet in MetaMask.");
                 return;
             }
-            // console.log("Connected to Base Testnet.");
+    
             setIsDeploying(true);
     
             // Create a new contract factory for deployment
@@ -123,13 +123,15 @@ export default function Editor() {
             const contract = await contractFactory.deploy();
             await contract.deployed();
     
-            // Get the block explorer URL
-            const blockExplorerUrl = `https://explorer.testnet.rsk.co/address/${contract.address}`;
-            
+            // Determine block explorer URL based on the network
+            const blockExplorerUrl = network.chainId === 8453
+                ? `https://basescan.org/address/${contract.address}`
+                : `https://sepolia.basescan.org/address/${contract.address}`;
+    
             const solidityCode = suggestions; // Assuming suggestions holds your Solidity code
             const fileName = `Contract_${contract.address}.sol`; // Generate a unique file name
             const solidityFilePath = await saveSolidityCode(solidityCode, fileName); // Save the Solidity code and get the file path
-
+    
             // Prepare contract data to save
             const contractData = {
                 chainId: network.chainId,
@@ -140,9 +142,8 @@ export default function Editor() {
                 solidityFilePath: solidityFilePath,
                 deploymentDate: new Date().toISOString(),
             };
-        
+    
             // Get user email from context
-            
             if (userData && userData.email) {
                 await saveContractData(contractData, userData.email);
             } else {
@@ -173,8 +174,7 @@ export default function Editor() {
             setIsDeploying(false);
         }
     };
-
-
+    
 
     const shortenAddress = (address) => {
         if (!address) return '';
