@@ -162,12 +162,14 @@ const Chat = ({
   }, [pathname]);
 
   const sendMessage = async (text) => {
+    console.log("sending message to agent ", name.toLowerCase());
     const response = await fetch(
       `/api/assistants/threads/${threadId}/messages`,
       {
         method: "POST",
         body: JSON.stringify({
           content: text,
+          agentName: name.toLowerCase(),
         }),
       }
     );
