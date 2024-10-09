@@ -14,7 +14,8 @@ import { saveContractData, saveSolidityCode } from "@/lib/contractService";
 import { GlobalContext } from "@/contexts/UserContext";
 
 export default function Editor() {
-  const { agentResponse, handleRunAgent, inputDisabled } = solidityCodeAgent();
+  const { agentResponse, handleRunAgent, inputDisabled, setAgentResponse } =
+    solidityCodeAgent();
   const [userPrompt, setUserPrompt] = useState("");
   const [result, setResult] = useState(null);
   const { setContractState, contractState } = useContractState();
@@ -108,7 +109,7 @@ export default function Editor() {
           ? `https://basescan.org/address/${contract.address}`
           : `https://sepolia.basescan.org/address/${contract.address}`;
 
-      const solidityCode = suggestions; // Assuming suggestions holds your Solidity code
+      const solidityCode = agentResponse; // Assuming agentResponse holds your Solidity code
       const fileName = `Contract_${contract.address}.sol`; // Generate a unique file name
       const solidityFilePath = await saveSolidityCode(solidityCode, fileName); // Save the Solidity code and get the file path
 
@@ -163,6 +164,10 @@ export default function Editor() {
   const shortenAddress = (address) => {
     if (!address) return "";
     return `${address.slice(0, 3)}...${address.slice(-3)}`;
+  };
+
+  const handleCodeChange = (code) => {
+    setAgentResponse(code);
   };
 
   //useEffect to monitor sugeestion changes and compile code
@@ -321,6 +326,7 @@ export default function Editor() {
                     <SolidityEditor
                       code={agentResponse}
                       defaultValue={"// Solidity code will appear here"}
+                      onChange={handleCodeChange}
                     />
                   </div>
                 </div>
