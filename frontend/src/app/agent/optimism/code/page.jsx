@@ -14,8 +14,7 @@ import { saveContractData, saveSolidityCode } from "@/lib/contractService";
 import { GlobalContext } from "@/contexts/UserContext";
 
 export default function Editor() {
-  const { agentResponse, handleRunAgent, inputDisabled, setAgentResponse } =
-    solidityCodeAgent();
+  const { agentResponse, handleRunAgent, inputDisabled } = solidityCodeAgent();
   const [userPrompt, setUserPrompt] = useState("");
   const [result, setResult] = useState(null);
   const { setContractState, contractState } = useContractState();
@@ -109,7 +108,7 @@ export default function Editor() {
           ? `https://optimistic.etherscan.io/address/${contract.address}`
           : `https://sepolia-optimism.etherscan.io/address/${contract.address}`;
 
-      const solidityCode = agentResponse; // Assuming agentResponse holds your Solidity code
+      const solidityCode = suggestions; // Assuming suggestions holds your Solidity code
       const fileName = `Contract_${contract.address}.sol`; // Generate a unique file name
       const solidityFilePath = await saveSolidityCode(solidityCode, fileName); // Save the Solidity code and get the file path
 
@@ -165,12 +164,6 @@ export default function Editor() {
     if (!address) return "";
     return `${address.slice(0, 3)}...${address.slice(-3)}`;
   };
-
-  const handleCodeChange = (value) => {
-    setAgentResponse(value);
-  };
-
-  //useEffect to monitor sugeestion changes and compile code
 
   const RenderResult = () => {
     const [ABIcopied, setABICopied] = useState(false);

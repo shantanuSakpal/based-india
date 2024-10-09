@@ -14,8 +14,7 @@ import { saveContractData, saveSolidityCode } from "@/lib/contractService";
 import { GlobalContext } from "@/contexts/UserContext";
 
 export default function Editor() {
-  const { agentResponse, handleRunAgent, inputDisabled, setAgentResponse } =
-    solidityCodeAgent();
+  const { agentResponse, handleRunAgent, inputDisabled } = solidityCodeAgent();
   const [userPrompt, setUserPrompt] = useState("");
   const [result, setResult] = useState(null);
   const { setContractState, contractState } = useContractState();
@@ -78,13 +77,17 @@ export default function Editor() {
       const signer = provider.getSigner();
       console.log("Connected to MetaMask.");
 
-      // Check if the user is on the correct network (Base Testnet)
+      // Check if the user is on the correct network (Base Mainnet or Base Sepolia Testnet)
       const network = await provider.getNetwork();
-      if (network.chainId !== 31) {
-        toast.error("Please switch to the Base Testnet in MetaMask.");
+      console.log(network.chainId);
+
+      if (network.chainId !== 8453 && network.chainId !== 84532) {
+        toast.error(
+          "Please switch to either Base Mainnet or Base Sepolia Testnet in MetaMask."
+        );
         return;
       }
-      // console.log("Connected to Base Testnet.");
+
       setIsDeploying(true);
 
       // Create a new contract factory for deployment
@@ -99,10 +102,13 @@ export default function Editor() {
       const contract = await contractFactory.deploy();
       await contract.deployed();
 
-      // Get the block explorer URL
-      const blockExplorerUrl = `https://explorer.testnet.rsk.co/address/${contract.address}`;
+      // Determine block explorer URL based on the network
+      const blockExplorerUrl =
+        network.chainId === 8453
+          ? `https://basescan.org/address/${contract.address}`
+          : `https://sepolia.basescan.org/address/${contract.address}`;
 
-      const solidityCode = agentResponse; // Assuming agentResponse holds your Solidity code
+      const solidityCode = suggestions; // Assuming suggestions holds your Solidity code
       const fileName = `Contract_${contract.address}.sol`; // Generate a unique file name
       const solidityFilePath = await saveSolidityCode(solidityCode, fileName); // Save the Solidity code and get the file path
 
@@ -118,7 +124,6 @@ export default function Editor() {
       };
 
       // Get user email from context
-
       if (userData && userData.email) {
         await saveContractData(contractData, userData.email);
       } else {
@@ -158,9 +163,6 @@ export default function Editor() {
   const shortenAddress = (address) => {
     if (!address) return "";
     return `${address.slice(0, 3)}...${address.slice(-3)}`;
-  };
-  const handleCodeChange = (value) => {
-    setAgentResponse(value);
   };
 
   //useEffect to monitor sugeestion changes and compile code

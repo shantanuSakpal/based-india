@@ -62,6 +62,5 @@ export function solidityCodeAgent() {
     agentResponse,
     handleRunAgent,
     inputDisabled,
-    setAgentResponse,
   };
 }
