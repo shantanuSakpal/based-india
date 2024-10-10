@@ -65,6 +65,7 @@ export default function Editor() {
 
     try {
       // Prompt user to connect their wallet if not connected
+      console.log(window.ethereum);
       if (!window.ethereum) {
         toast.error("Please install MetaMask to deploy the contract.");
         return;

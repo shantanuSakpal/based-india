@@ -1,4 +1,3 @@
-
 # Decentrix.AI
 
 Welcome to Decentrix.AI - Your Ultimate AI-Powered Blockchain Development Companion
@@ -10,30 +9,30 @@ Decentrix.AI is designed to streamline the blockchain development process, makin
 ## Features
 
 ### 1. AI-Powered Smart Contract Generator
+
 - Describe your contract requirements in natural language
 - Our AI agent will generate a fully functional smart contract based on your description
 - Supports multiple blockchain platforms
-![img.png](assets/img.png)
+  ![img.png](assets/img.png)
 
 ### 2. One-Click Compile and Deploy
+
 - Compile your smart contracts with a single click
 - Automated error handling and suggestions for fixes
 - Seamless deployment to your chosen blockchain
 - Interaction with the contract directly from the platform
-![img_1.png](assets/img_1.png)
+  ![img_1.png](assets/img_1.png)
 
 ### 3. Dedicated Chain-Specific AI Agents
 
 https://github.com/user-attachments/assets/e2982636-9cff-438a-a848-4d24bc86e046
 
-
 - Specialized AI agents with in-depth knowledge of specific blockchain platforms
 - Get instant answers to your questions without sifting through complex documentation
 - Receive platform-specific best practices and optimization tips
 
-
-
 ### 4. Interactive Learning and Development
+
 - Learn as you build with context-aware suggestions and explanations
 - Explore blockchain concepts and features through guided interactions
 
@@ -45,19 +44,14 @@ https://github.com/user-attachments/assets/e2982636-9cff-438a-a848-4d24bc86e046
 4. Start building your smart contract or explore the platform's features
 
 ## Supported Blockchain Platforms
-- Rootstock
-- Hedera
-- Blockless
-- Fhenix
-- Morph
-- Nillion
-- Nethermind
-- ChainLink
 
+- Base
+- Optimism
 
 ## How It Works
 
 # Code Generation
+
 1. **Describe Your Contract**: Tell our AI what you want your smart contract to do.
 2. **Generate Code**: Our AI will create a smart contract based on your description.
 3. **Review and Customize**: Make any necessary adjustments to the generated code.
@@ -65,8 +59,9 @@ https://github.com/user-attachments/assets/e2982636-9cff-438a-a848-4d24bc86e046
 5. **Deploy**: Deploy your contract to your chosen blockchain with ease.
 
 # Platform Assistance
+
 1. **Ask Questions**: Pose your questions to our platform-specific AI agents.
-2. **Get Answers**: Receive  responses with detailed explanations, code and links to relevant resources.
+2. **Get Answers**: Receive responses with detailed explanations, code and links to relevant resources.
 
 ## Benefits
 
@@ -74,7 +69,6 @@ https://github.com/user-attachments/assets/e2982636-9cff-438a-a848-4d24bc86e046
 - **Learning Tool**: Perfect for beginners to understand smart contract development.
 - **Error Reduction**: AI-assisted coding and compilation help minimize errors.
 - **Platform Expertise**: Gain insights into different blockchain platforms without extensive research.
-
 
 ## License
 
