@@ -1,10 +1,11 @@
 import { getAssistantId } from "@/app/assistant-config";
 import { openai } from "@/app/openai";
+import { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
 // Send a new message to a thread
-export async function POST(request, { params: { threadId } }) {
+export async function POST(request: NextRequest, { params: { threadId } }) {
   const { content, agentName } = await request.json();
 
   await openai.beta.threads.messages.create(threadId, {

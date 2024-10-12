@@ -1,8 +1,9 @@
 import { getAssistantId } from "@/app/assistant-config";
 import { openai } from "@/app/openai";
+import { NextRequest } from "next/server";
 
 // upload file to assistant's vector store
-export async function POST(request) {
+export async function POST(request: NextRequest) {
   const formData = await request.formData(); // process file as FormData
   const assistantId = await getAssistantId("base"); // get assistant ID
   const file = formData.get("file"); // retrieve the single file from FormData

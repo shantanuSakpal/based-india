@@ -6,7 +6,7 @@ import SolidityEditor from "@/components/SolidityEditor";
 import axios from "axios";
 import WalletConnectButton from "@/components/WalletConnectButton";
 import { useAccount } from "wagmi";
-import { solidityCodeAgent } from "@/hooks/solidityCodeAgent";
+import { solidityCodeAgent } from "@/hooks/useSolidityCodeAgent";
 import { FaClipboard, FaClipboardCheck } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
 import { useContractState } from "@/contexts/ContractContext";
