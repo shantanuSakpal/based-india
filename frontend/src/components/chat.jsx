@@ -367,7 +367,10 @@ const Chat = ({
           className={styles.input}
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
-          placeholder="Enter your question"
+          placeholder={
+            inputDisabled ? "Finding answers..." : "Enter you question"
+          }
+          disabled={inputDisabled}
         />
         <button
           type="submit"
