@@ -57,10 +57,10 @@ export default function Editor() {
   };
 
   const DeployContract = async () => {
-    if (!result || result.status !== "success") {
-      toast.error("Please compile the contract successfully before deploying.");
-      return;
-    }
+    // if (!result || result.status !== "success") {
+    //   toast.error("Please compile the contract successfully before deploying.");
+    //   return;
+    // }
     console.log("Deploying contract...");
 
     try {
@@ -68,6 +68,8 @@ export default function Editor() {
       console.log(window.ethereum);
       if (!window.ethereum) {
         toast.error("Please install MetaMask to deploy the contract.");
+        console.log(account.address);
+
         return;
       }
       console.log("Requesting MetaMask connection...");

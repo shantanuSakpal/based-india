@@ -1,4 +1,4 @@
-import type {Metadata} from "next";
+import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
@@ -6,32 +6,34 @@ import Footer from "@/components/Footer";
 import WagmiProviderComp from "@/utils/wagmi-provider";
 import { headers } from "next/headers";
 import { cookieToInitialState } from "wagmi";
-import { config } from "@/utils/config";
-
+import { wagmiConfig } from "@/utils/wagmiConfig";
 
 export const metadata: Metadata = {
-    title: "Decentrix.AI",
-    description: "Think ideas, not code",
+  title: "Decentrix.AI",
+  description: "Think ideas, not code",
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
+  children,
+}: Readonly<{
+  children: React.ReactNode;
 }>) {
-    const initialState = cookieToInitialState(config, headers().get("cookie"));
+  const initialState = cookieToInitialState(
+    wagmiConfig,
+    headers().get("cookie")
+  );
 
-    return (
-        <html lang="en">
-        <body className="bg-theme-off-white pt-16 min-h-screen">
+  return (
+    <html lang="en">
+      <body className="bg-theme-off-white pt-16 min-h-screen">
         <Providers>
-            <Navbar/>
-            <WagmiProviderComp initialState={initialState}>
-                {children}
-            </WagmiProviderComp>
-            <Footer/>
+          <Navbar />
+          <WagmiProviderComp initialState={initialState}>
+            {children}
+          </WagmiProviderComp>
+          <Footer />
         </Providers>
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  );
 }
