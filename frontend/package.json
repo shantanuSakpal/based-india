@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.33.5",
+    "@coinbase/onchainkit": "^0.32.0",
     "@coinbase/wallet-sdk": "^4.1.0",
     "@hashgraph/sdk": "^2.50.0",
     "@monaco-editor/react": "^4.6.0",

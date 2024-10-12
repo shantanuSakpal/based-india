@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { State, WagmiProvider } from "wagmi";
 import { wagmiConfig, projectId } from "./wagmiConfig";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
-import { base, baseSepolia } from "viem/chains";
+import { base, baseSepolia, optimismSepolia } from "viem/chains";
 import { NEXT_PUBLIC_CDP_API_KEY } from "@/utils/config";
 
 if (!projectId) throw new Error("Project ID is not defined");
@@ -17,13 +17,7 @@ createWeb3Modal({
   enableAnalytics: true, // Optional
 });
 
-export const WagmiProviderComp = ({
-  children,
-  initialState,
-}: {
-  children: ReactNode;
-  initialState?: State;
-}) => {
+export const WagmiProviderComp = ({ children, initialState }) => {
   const [queryClient] = React.useState(
     () =>
       new QueryClient({
@@ -40,7 +34,7 @@ export const WagmiProviderComp = ({
       <QueryClientProvider client={queryClient}>
         <OnchainKitProvider
           apiKey={NEXT_PUBLIC_CDP_API_KEY}
-          chains={[base, baseSepolia]}
+          chain={baseSepolia}
         >
           {children}
         </OnchainKitProvider>
