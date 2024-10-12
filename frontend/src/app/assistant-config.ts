@@ -1,9 +1,9 @@
 // assistantConfig.ts
 
 export const assistantIds = {
-  base: process.env.BASE_ASSISTANT_ID || "",
-  optimism: process.env.OPTIMISM_ASSISTANT_ID || "",
-  solidity: process.env.SOLIDITY_ASSISTANT_ID || "",
+  base: process.env.NEXT_PUBLIC_BASE_ASSISTANT_ID || "",
+  optimism: process.env.NEXT_PUBLIC_OPTIMISM_ASSISTANT_ID || "",
+  solidity: process.env.NEXT_PUBLIC_SOLIDITY_ASSISTANT_ID || "",
 };
 
 export const getAssistantId = (
