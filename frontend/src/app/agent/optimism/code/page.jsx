@@ -6,7 +6,7 @@ import SolidityEditor from "@/components/SolidityEditor";
 import axios from "axios";
 import WalletConnectButton from "@/components/WalletConnectButton";
 import { useAccount } from "wagmi";
-import { solidityCodeAgent } from "@/hooks/useSolidityCodeAgent";
+import { useSolidityCodeAgent } from "@/hooks/useSolidityCodeAgent";
 import { FaClipboard, FaClipboardCheck } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
 import { useContractState } from "@/contexts/ContractContext";
@@ -14,8 +14,14 @@ import { saveContractData, saveSolidityCode } from "@/lib/contractService";
 import { GlobalContext } from "@/contexts/UserContext";
 
 export default function Editor() {
-  const { agentResponse, handleRunAgent, inputDisabled, setAgentResponse } =
-    solidityCodeAgent();
+  const {
+    agentResponse,
+    handleRunAgent,
+    inputDisabled,
+    setAgentResponse,
+    progressMessage,
+  } = useSolidityCodeAgent();
+
   const [userPrompt, setUserPrompt] = useState("");
   const [result, setResult] = useState(null);
   const { setContractState, contractState } = useContractState();
@@ -145,7 +151,7 @@ export default function Editor() {
             href={blockExplorerUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block mt-2 text-black-500 hover:underline"
+            className="block mt-2 text-blue-500 underline"
           >
             View on Block Explorer
           </a>
@@ -282,7 +288,7 @@ export default function Editor() {
                 onClick={() => handleRunAgent(userPrompt)}
                 color="default"
               >
-                {inputDisabled ? "Generating..." : "Generate code"}
+                {inputDisabled ? progressMessage : "Generate code"}
               </Button>
             </div>
 

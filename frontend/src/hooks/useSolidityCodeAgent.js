@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { AssistantStream } from "openai/lib/AssistantStream";
 
 export function useSolidityCodeAgent() {
@@ -7,6 +7,20 @@ export function useSolidityCodeAgent() {
   );
   const [inputDisabled, setInputDisabled] = useState(false);
   const [threadId, setThreadId] = useState("");
+  const [progressMessage, setProgressMessage] = useState(
+    "Understanding your question..."
+  );
+  const [intervalId, setIntervalId] = useState(null);
+
+  const codeGenerationMessages = useMemo(
+    () => [
+      "Retrieving knowledge base...",
+      "Finding answers...",
+      "Generating answers...",
+      "Almost there...",
+    ],
+    []
+  );
 
   useEffect(() => {
     const createThread = async () => {
@@ -39,16 +53,33 @@ export function useSolidityCodeAgent() {
           const processed_ans = removeSolidityFormatting(accumulatedResponse);
           setAgentResponse(processed_ans);
           setInputDisabled(false);
+          clearInterval(intervalId);
         }
       });
     },
     [removeSolidityFormatting]
   );
 
+  const messages = codeGenerationMessages;
+  let messageIndex = 0;
+  const displayMessage = () => {
+    if (messageIndex < messages.length) {
+      setProgressMessage(messages[messageIndex]);
+      messageIndex++;
+    } else {
+      messageIndex = 0; // Reset to start from the beginning
+    }
+  };
+
   const handleRunAgent = useCallback(
     async (userInput) => {
       if (!userInput.trim()) return;
       setInputDisabled(true);
+
+      //show progress to the user every 2 seconds
+      let intervalId = setInterval(displayMessage, 3000); // 2000 ms = 2 seconds
+      setIntervalId(intervalId);
+
       const response = await fetch(
         `/api/assistants/threads/${threadId}/messages`,
         {
@@ -67,5 +98,6 @@ export function useSolidityCodeAgent() {
     handleRunAgent,
     inputDisabled,
     setAgentResponse,
+    progressMessage,
   };
 }
