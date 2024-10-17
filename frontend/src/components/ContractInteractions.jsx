@@ -89,7 +89,7 @@ const ContractInteraction = () => {
                 <div className="space-y-2">
                   {func.inputs &&
                     func.inputs.map((input, index) => (
-                      <div className="flex flex-col gap-2">
+                      <div key={index} className="flex flex-col gap-2">
                         <label
                           className="text-sm"
                           htmlFor={input.name}
