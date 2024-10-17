@@ -1,121 +1,134 @@
-"use client"
-import React, { useState } from 'react';
-import { Input, Button, Accordion, AccordionItem } from '@nextui-org/react';
-import { useContractState } from '@/contexts/ContractContext';
-import { ethers } from 'ethers';
+"use client";
+import React, { useCallback, useEffect, useState } from "react";
+import { Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
+import { useContractState } from "@/contexts/ContractContext";
+import {
+  Transaction,
+  TransactionButton,
+  TransactionSponsor,
+  TransactionStatus,
+  TransactionStatusLabel,
+  TransactionStatusAction,
+} from "@coinbase/onchainkit/transaction";
 
 const ContractInteraction = () => {
   const { contractState } = useContractState();
   const { abi, address } = contractState;
   const [results, setResults] = useState({});
 
-  const renderInputs = (inputs, functionName) => {
-    if (inputs.length === 0) {
-      return <p>No input parameters</p>;
+  const BASE_SEPOLIA_CHAIN_ID = 84532;
+
+  const contracts = [
+    {
+      address: address,
+      abi: abi,
+      functionName: "",
+      args: [],
+    },
+  ];
+
+  const handleOnStatus = useCallback((status) => {
+    console.log("LifecycleStatus", status);
+    if (status.statusName === "success") {
+      setResults((prev) => ({
+        ...prev,
+        [status.functionName]: {
+          ...prev[status.functionName],
+          result: "Transaction successful",
+        },
+      }));
     }
-    return inputs.map((input, index) => (
-      <Input 
-        key={`${functionName}-${index}`}
-        label={`${input.name} (${input.type})`}
-        placeholder={`Enter ${input.name}`}
-        size="sm"
-        className="mb-2"
-        onChange={(e) => handleInputChange(functionName, index, e.target.value)}
-      />
-    ));
-  };
+  }, []);
 
   const handleInputChange = (functionName, index, value) => {
-    setResults(prev => ({
+    setResults((prev) => ({
       ...prev,
       [functionName]: {
         ...prev[functionName],
         inputs: {
           ...(prev[functionName]?.inputs || {}),
-          [index]: value
-        }
-      }
+          [index]: value,
+        },
+      },
     }));
   };
 
-  const getButtonColor = (stateMutability) => {
-    switch (stateMutability) {
-      case 'payable':
-        return 'danger';
-      case 'view':
-        return 'success';
-      default:
-        return 'warning';
-    }
-  };
-
-  const callFunction = async (func) => {
-    try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(address, abi, signer);
-
-      const inputs = results[func.name]?.inputs || {};
-      const args = Object.values(inputs);
-
-      let result;
-      if (func.stateMutability === 'view') {
-        result = await contract[func.name](...args);
-      } else {
-        const tx = await contract[func.name](...args);
-        await tx.wait();
-        result = 'Transaction successful';
-      }
-
-      setResults(prev => ({
-        ...prev,
-        [func.name]: {
-          ...prev[func.name],
-          result: result.toString()
-        }
-      }));
-    } catch (error) {
-      console.error('Error calling function:', error);
-      setResults(prev => ({
-        ...prev,
-        [func.name]: {
-          ...prev[func.name],
-          result: 'Error: ' + error.message
-        }
-      }));
-    }
-  };
-
-  const renderFunction = (func) => {
-    const inputs = func.inputs || [];
-    const buttonColor = getButtonColor(func.stateMutability);
-    return (
-      <AccordionItem key={func.name} title={func.name}>
-        <div className="space-y-2">
-          {renderInputs(inputs, func.name)}
-          <Button color={buttonColor} size="sm" onClick={() => callFunction(func)}>
-            {func.stateMutability === "view" ? "Call" : "Transact"}
-          </Button>
-          {results[func.name]?.result && (
-            <div className="mt-2">
-              <strong>Result:</strong> {results[func.name].result}
-            </div>
-          )}
-        </div>
-      </AccordionItem>
-    );
-  };
-
   if (!abi || !address) {
-    return <p>No contract deployed. Please deploy a contract first.</p>;
+    return (
+      <p className="bg-gray-100 border border-gray-400 text-black p-4 rounded">
+        Please deploy a contract to interact.
+      </p>
+    );
   }
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Contract Interaction</h2>
-      <p className="mb-2"><strong>Contract Address:</strong> {address}</p>
+      <p className="mb-2">
+        <strong>Contract Address:</strong> {address}
+      </p>
       <Accordion>
-        {abi.filter(item => item.type === "function").map(renderFunction)}
+        {abi
+          .filter((item) => item.type === "function")
+          .map((func) => {
+            const isViewFunction =
+              func.stateMutability === "view" ||
+              func.stateMutability === "pure";
+            const functionContracts = [
+              {
+                ...contracts[0],
+                functionName: func.name,
+                args: func.inputs
+                  ? Object.values(results[func.name]?.inputs || {})
+                  : [],
+              },
+            ];
+
+            return (
+              <AccordionItem key={func.name} title={func.name}>
+                <div className="space-y-2">
+                  {func.inputs &&
+                    func.inputs.map((input, index) => (
+                      <div className="flex flex-col gap-2">
+                        <label
+                          className="text-sm"
+                          htmlFor={input.name}
+                        >{`${input.name} (${input.type})`}</label>
+                        <input
+                          key={`${func.name}-${index}`}
+                          placeholder={`Enter ${input.name}`}
+                          className="mb-2 border-gray-100 bg-gray-100 py-2 px-3 rounded"
+                          onChange={(e) =>
+                            handleInputChange(func.name, index, e.target.value)
+                          }
+                        />
+                      </div>
+                    ))}
+
+                  <Transaction
+                    chainId={BASE_SEPOLIA_CHAIN_ID}
+                    contracts={functionContracts}
+                    onStatus={handleOnStatus}
+                  >
+                    <TransactionButton>
+                      {func.name} ({func.stateMutability})
+                    </TransactionButton>
+                    <TransactionSponsor />
+                    <TransactionStatus>
+                      <TransactionStatusLabel />
+                      <TransactionStatusAction />
+                    </TransactionStatus>
+                  </Transaction>
+
+                  {results[func.name]?.result && (
+                    <div className="mt-2">
+                      <strong>Result:</strong> {results[func.name].result}
+                    </div>
+                  )}
+                </div>
+              </AccordionItem>
+            );
+          })}
       </Accordion>
     </div>
   );

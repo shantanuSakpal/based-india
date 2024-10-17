@@ -12,6 +12,8 @@ import { Toaster, toast } from "react-hot-toast";
 import { useContractState } from "@/contexts/ContractContext";
 import { saveContractData, saveSolidityCode } from "@/lib/contractService";
 import { GlobalContext } from "@/contexts/UserContext";
+import ContractInteraction from "@/components/ContractInteractions";
+import { PRIVATE_KEY } from "@/utils/config";
 
 export default function Editor() {
   const {
@@ -24,7 +26,7 @@ export default function Editor() {
   const [userPrompt, setUserPrompt] = useState("");
   const [result, setResult] = useState(null);
   const { setContractState, contractState } = useContractState();
-  const account = useAccount();
+  const { account, isConnected } = useAccount();
   const [isCompiling, setCompiling] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
   const [error, setError] = useState(null);
@@ -70,45 +72,40 @@ export default function Editor() {
     console.log("Deploying contract...");
 
     try {
-      // Prompt user to connect their wallet if not connected
-      console.log(window.ethereum);
-      if (!window.ethereum) {
-        toast.error("Please install MetaMask to deploy the contract.");
-        console.log(account.address);
+      setIsDeploying(true);
 
+      // Create provider for Base Sepolia testnet
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://sepolia.base.org" // or your preferred RPC URL
+      );
+
+      // Create wallet from private key
+      if (!PRIVATE_KEY) {
+        toast.error("Please enter a private key");
         return;
       }
-      console.log("Requesting MetaMask connection...");
 
-      // Request to connect to MetaMask
-      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      console.log("Connected to MetaMask.");
-
-      // Check if the user is on the correct network (Base Mainnet or Base Sepolia Testnet)
+      // Check if the network is correct
       const network = await provider.getNetwork();
-      console.log(network.chainId);
+      console.log("Network chainId:", network.chainId);
 
       if (network.chainId !== 8453 && network.chainId !== 84532) {
         toast.error(
-          "Please switch to either Base Mainnet or Base Sepolia Testnet in MetaMask."
+          "Provider is not connected to Base Mainnet or Base Sepolia Testnet."
         );
         return;
       }
 
-      setIsDeploying(true);
-
-      // Create a new contract factory for deployment
+      // Create contract factory with the wallet
       const contractFactory = new ethers.ContractFactory(
         result.abi,
         result.bytecode,
-        signer
+        wallet
       );
-      console.log("Deploying contract...");
 
-      // Deploy the contract
+      console.log("Deploying contract...");
       const contract = await contractFactory.deploy();
       await contract.deployed();
 
@@ -118,11 +115,11 @@ export default function Editor() {
           ? `https://basescan.org/address/${contract.address}`
           : `https://sepolia.basescan.org/address/${contract.address}`;
 
-      const solidityCode = agentResponse; // Assuming agentResponse holds your Solidity code
-      const fileName = `Contract_${contract.address}.sol`; // Generate a unique file name
-      const solidityFilePath = await saveSolidityCode(solidityCode, fileName); // Save the Solidity code and get the file path
+      const solidityCode = agentResponse;
+      const fileName = `Contract_${contract.address}.sol`;
+      const solidityFilePath = await saveSolidityCode(solidityCode, fileName);
 
-      // Prepare contract data to save
+      // Prepare and save contract data
       const contractData = {
         chainId: network.chainId,
         contractAddress: contract.address,
@@ -133,7 +130,6 @@ export default function Editor() {
         deploymentDate: new Date().toISOString(),
       };
 
-      // Get user email from context
       if (userData && userData.email) {
         await saveContractData(contractData, userData.email);
       } else {
@@ -165,7 +161,11 @@ export default function Editor() {
     } catch (error) {
       setError(error);
       console.error("Error deploying contract:", error);
-      toast.error("Failed to deploy contract. Check the console for details.");
+      if (error.code === "INVALID_ARGUMENT") {
+        toast.error("Invalid private key");
+      } else {
+        toast.error(`Error deploying contract: ${error.message}`);
+      }
     } finally {
       setIsDeploying(false);
     }
@@ -181,13 +181,13 @@ export default function Editor() {
     const [Bytecopied, setByteCopied] = useState(false);
 
     const copyToClipboard = (text, ele) => {
-      console.log(text);
+      console.log(contractState);
       navigator.clipboard.writeText(text);
     };
 
     if (!result) {
       return (
-        <div className="text-gray-600 ">
+        <div className="bg-gray-100 border border-gray-400 text-black p-4 rounded">
           Compilation results will appear here.
         </div>
       );
@@ -211,7 +211,9 @@ export default function Editor() {
           <div className="bg-green-100 border border-green-400 text-green-700 p-4 rounded">
             <h3 className="font-bold">Compilation Successful!</h3>
           </div>
-          <div className=" p-4 rounded flex items-center space-x-4 justify-end my-2">
+
+          {/*copy abi and bytecode*/}
+          {/* <div className=" p-4 rounded flex items-center space-x-4 justify-end my-2">
             <Button
               color="primary"
               className="flex gap-2 items-center"
@@ -234,14 +236,14 @@ export default function Editor() {
               <h4 className="">{ABIcopied ? "ABI Copied" : "Copy ABI"}</h4>
               {ABIcopied ? <FaClipboardCheck /> : <FaClipboard />}
             </Button>
-          </div>
+          </div> */}
         </div>
       );
     }
 
     return (
       <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 p-4 rounded">
-        Unexpected result format.
+        Error while compilation!.
       </div>
     );
   };
@@ -256,7 +258,7 @@ export default function Editor() {
               <div className="flex items-center space-x-4">
                 <Avatar isBordered radius="md" src="/chain/base-logo.png" />
                 <div className="flex-grow">
-                  {account.isConnected ? (
+                  {isConnected ? (
                     <div className="flex items-center justify-between">
                       <span className="text-green-600 font-semibold">
                         Connected
@@ -283,7 +285,7 @@ export default function Editor() {
               <Button
                 disabled={inputDisabled}
                 onClick={() => handleRunAgent(userPrompt)}
-                color="default"
+                color="primary"
               >
                 {inputDisabled ? progressMessage : "Generate code"}
               </Button>
@@ -292,6 +294,16 @@ export default function Editor() {
             <div className="my-5">
               <RenderResult />
             </div>
+            {isConnected ? (
+              <ContractInteraction />
+            ) : (
+              <div className="text-gray-600 ">
+                <p className="p-2 ">
+                  Please connect your wallet to interact with the contract.
+                </p>
+                <WalletConnectButton />
+              </div>
+            )}
           </Card>
         </div>
         <div className="w-1/2 p-4 flex flex-col">
@@ -316,11 +328,6 @@ export default function Editor() {
                 >
                   {isDeploying ? "Deploying..." : "Deploy"}
                 </Button>
-                {error && (
-                  <div className="text-red-500 text-sm ">
-                    Error {error.shortMessage || error.message}
-                  </div>
-                )}
               </div>
             </CardHeader>
             <CardBody className="p-4 h-full">
