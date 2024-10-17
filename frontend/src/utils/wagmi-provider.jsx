@@ -1,45 +1,31 @@
 "use client";
-
-import React, { ReactNode } from "react";
-import { createWeb3Modal } from "@web3modal/wagmi/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { State, WagmiProvider } from "wagmi";
-import { wagmiConfig, projectId } from "./wagmiConfig";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
-import { base, baseSepolia, optimismSepolia } from "viem/chains";
-import { NEXT_PUBLIC_CDP_API_KEY } from "@/utils/config";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { base, baseSepolia } from "viem/chains";
+import { WagmiProvider } from "wagmi";
+import { NEXT_PUBLIC_ONCHAINKIT_API_KEY } from "@/utils/config";
+import { useWagmiConfig } from "@/utils/wagmiConfig";
 
-if (!projectId) throw new Error("Project ID is not defined");
+const queryClient = new QueryClient();
 
-createWeb3Modal({
-  wagmiConfig,
-  projectId,
-  enableAnalytics: true, // Optional
-});
-
-export const WagmiProviderComp = ({ children, initialState }) => {
-  const [queryClient] = React.useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            refetchOnWindowFocus: false, // configure as per your needs
-          },
-        },
-      })
-  );
+function OnchainProviders({ children }) {
+  const wagmiConfig = useWagmiConfig();
 
   return (
-    <WagmiProvider config={wagmiConfig} initialState={initialState}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <OnchainKitProvider
-          apiKey={NEXT_PUBLIC_CDP_API_KEY}
+          apiKey={NEXT_PUBLIC_ONCHAINKIT_API_KEY}
           chain={baseSepolia}
         >
-          {children}
+          <RainbowKitProvider modalSize="compact">
+            {children}
+          </RainbowKitProvider>
         </OnchainKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
-};
-export default WagmiProviderComp;
+}
+
+export default OnchainProviders;

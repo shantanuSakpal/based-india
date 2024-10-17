@@ -27,6 +27,7 @@ export default function Editor() {
   const account = useAccount();
   const [isCompiling, setCompiling] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
+  const [error, setError] = useState(null);
   const { userData } = useContext(GlobalContext);
 
   const compileCode = async () => {
@@ -62,10 +63,10 @@ export default function Editor() {
   };
 
   const DeployContract = async () => {
-    // if (!result || result.status !== "success") {
-    //   toast.error("Please compile the contract successfully before deploying.");
-    //   return;
-    // }
+    if (!result || result.status !== "success") {
+      toast.error("Please compile the contract successfully before deploying.");
+      return;
+    }
     console.log("Deploying contract...");
 
     try {
@@ -162,16 +163,12 @@ export default function Editor() {
       );
       console.log(`Contract deployed at: ${contract.address}`);
     } catch (error) {
+      setError(error);
       console.error("Error deploying contract:", error);
       toast.error("Failed to deploy contract. Check the console for details.");
     } finally {
       setIsDeploying(false);
     }
-  };
-
-  const shortenAddress = (address) => {
-    if (!address) return "";
-    return `${address.slice(0, 3)}...${address.slice(-3)}`;
   };
 
   const handleCodeChange = (code) => {
@@ -264,9 +261,6 @@ export default function Editor() {
                       <span className="text-green-600 font-semibold">
                         Connected
                       </span>
-                      <span className="text-gray-600 text-sm">
-                        {shortenAddress(account?.address)}
-                      </span>
                     </div>
                   ) : (
                     <span className="text-gray-600">Not connected</span>
@@ -322,6 +316,11 @@ export default function Editor() {
                 >
                   {isDeploying ? "Deploying..." : "Deploy"}
                 </Button>
+                {error && (
+                  <div className="text-red-500 text-sm ">
+                    Error {error.shortMessage || error.message}
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardBody className="p-4 h-full">
