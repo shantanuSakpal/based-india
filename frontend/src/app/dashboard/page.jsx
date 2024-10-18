@@ -6,6 +6,7 @@ import { FaTelegramPlane } from 'react-icons/fa';
 import { getContractsForUser } from '@/lib/contractService';
 import { GlobalContext } from "@/contexts/UserContext";
 
+
 const chainConfig = {
   2710: { name: 'Morph Testnet', logo: '/chain/morph-logo.jpeg' },
   31: { name: 'RootStock Testnet', logo: '/chain/base-logo.png' },
