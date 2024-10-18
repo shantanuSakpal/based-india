@@ -11,6 +11,10 @@ const chainConfig = {
   31: { name: 'RootStock Testnet', logo: '/chain/base-logo.png' },
   8008135: { name: 'Fhenix Helium', logo: '/chain/fhenix-logo.png' },
   rootstock: { name: 'Chainlink', logo: '/chain/base-logo.png' },
+  84532: { name: 'Base Sepolia', logo: '/chain/base-logo.png' },
+  8453: { name: 'Base', logo: '/chain/base-logo.png' },
+  11155420 : { name: 'Optimism Sepolia', logo: '/chain/optimism-logo.png' },
+  10 : { name: 'Optimism', logo: '/chain/optimism-logo.png' },
   default: { name: 'Unknown Chain', logo: '/chain/hedera-logo.png' }
 };
 
