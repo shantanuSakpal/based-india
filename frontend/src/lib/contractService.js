@@ -1,7 +1,6 @@
-// src/lib/contractService.js
 import { db, storage } from '@/lib/firebaseConfig';
 import { collection, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadString } from "firebase/storage";
+import { ref, uploadString, getDownloadURL, getBlob } from "firebase/storage";
 
 const saveContractData = async (contractData, userId) => {
     try {
@@ -42,7 +41,6 @@ const saveSolidityCode = async (solidityCode, fileName) => {
     }
 };
 
-
 const getContractsForUser = async (userId) => {
     try {
         const userDocRef = doc(db, "users", userId);
@@ -61,4 +59,51 @@ const getContractsForUser = async (userId) => {
     }
 };
 
-export { saveContractData, saveSolidityCode, getContractsForUser };
+// Method 1: Using Firebase Storage getBlob (Recommended)
+const getSolidityCode = async (filePath) => {
+    try {
+        // Create a reference to the file
+        const fileRef = ref(storage, filePath);
+        
+        // Get the blob directly using Firebase Storage
+        const blob = await getBlob(fileRef);
+        
+        // Convert blob to text
+        const code = await blob.text();
+        
+        console.log("Successfully retrieved Solidity code");
+        return code;
+    } catch (error) {
+        console.error("Error fetching Solidity code:", error);
+        throw error;
+    }
+};
+
+// Method 2: Alternative approach using getDownloadURL with proper headers
+// const getSolidityCode = async (filePath) => {
+//     try {
+//         const fileRef = ref(storage, filePath);
+//         const url = await getDownloadURL(fileRef);
+        
+//         const response = await fetch(url, {
+//             method: 'GET',
+//             headers: {
+//                 'Accept': 'text/plain',
+//             },
+//             mode: 'cors',
+//             credentials: 'same-origin'
+//         });
+
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+
+//         const code = await response.text();
+//         return code;
+//     } catch (error) {
+//         console.error("Error fetching Solidity code:", error);
+//         throw error;
+//     }
+// };
+
+export { saveContractData, saveSolidityCode, getContractsForUser, getSolidityCode };

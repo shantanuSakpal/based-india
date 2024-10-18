@@ -2,21 +2,21 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaTelegramPlane } from 'react-icons/fa';
-import { getContractsForUser } from '@/lib/contractService';
+import { useRouter } from 'next/navigation';
+import { FaTelegramPlane, FaCode } from 'react-icons/fa';
+import { getContractsForUser, getSolidityCode } from '@/lib/contractService';
 import { GlobalContext } from "@/contexts/UserContext";
 
-
 const chainConfig = {
-  2710: { name: 'Morph Testnet', logo: '/chain/morph-logo.jpeg' },
-  31: { name: 'RootStock Testnet', logo: '/chain/base-logo.png' },
-  8008135: { name: 'Fhenix Helium', logo: '/chain/fhenix-logo.png' },
-  rootstock: { name: 'Chainlink', logo: '/chain/base-logo.png' },
-  84532: { name: 'Base Sepolia', logo: '/chain/base-logo.png' },
-  8453: { name: 'Base', logo: '/chain/base-logo.png' },
-  11155420 : { name: 'Optimism Sepolia', logo: '/chain/optimism-logo.png' },
-  10 : { name: 'Optimism', logo: '/chain/optimism-logo.png' },
-  default: { name: 'Unknown Chain', logo: '/chain/hedera-logo.png' }
+  2710: { name: 'Morph Testnet', logo: '/chain/morph-logo.jpeg', path: 'morph' },
+  31: { name: 'RootStock Testnet', logo: '/chain/base-logo.png', path: 'base' },
+  8008135: { name: 'Fhenix Helium', logo: '/chain/fhenix-logo.png', path: 'fhenix' },
+  rootstock: { name: 'Chainlink', logo: '/chain/base-logo.png', path: 'base' },
+  84532: { name: 'Base Sepolia', logo: '/chain/base-logo.png', path: 'base' },
+  8453: { name: 'Base', logo: '/chain/base-logo.png', path: 'base' },
+  11155420: { name: 'Optimism Sepolia', logo: '/chain/optimism-logo.png', path: 'optimism' },
+  10: { name: 'Optimism', logo: '/chain/optimism-logo.png', path: 'optimism' },
+  default: { name: 'Unknown Chain', logo: '/chain/hedera-logo.png', path: 'base' }
 };
 
 const getChainInfo = (chainId) => {
@@ -28,12 +28,14 @@ const DashboardPage = () => {
   const [userContracts, setUserContracts] = useState([]);
   const { userData } = useContext(GlobalContext);
   const [nameInitials, setNameInitials] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     if (userData && userData.email) {
       const fetchContracts = async () => {
         try {
           const contracts = await getContractsForUser(userData.email);
+          console.log(contracts)
           setUserContracts(contracts);
         } catch (error) {
           console.error("Error fetching user contracts:", error);
@@ -48,6 +50,25 @@ const DashboardPage = () => {
       }
     }
   }, [userData]);
+
+  const handleViewCode = async (contract) => {
+    try {
+      // Get the code from Firebase using the stored file path
+      const code = await getSolidityCode(contract.solidityFilePath);
+      
+      // Get the appropriate agent path based on chain ID
+      const chainInfo = getChainInfo(contract.chainId);
+      
+      // Store the code in localStorage for the agent page to access
+      localStorage.setItem('loadedContractCode', code);
+      
+      // Navigate to the appropriate agent page
+      router.push(`/agent/${chainInfo.path}/code`);
+    } catch (error) {
+      console.error("Error loading contract code:", error);
+      // You might want to show a toast notification here
+    }
+  };
 
   if (!userData) {
     return (
@@ -101,19 +122,27 @@ const DashboardPage = () => {
                       {chainInfo.name}
                     </div>
                   </div>
-                  <Link
-                    href={contract.blockExplorerUrl}
-                    className="text-2xl p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                  >
-                    <FaTelegramPlane />
-                  </Link>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleViewCode(contract)}
+                      className="text-2xl p-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                    >
+                      <FaCode />
+                    </button>
+                    <Link
+                      href={contract.blockExplorerUrl}
+                      className="text-2xl p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    >
+                      <FaTelegramPlane />
+                    </Link>
+                  </div>
                 </div>
                 <div className="font-light text-sm mb-2">
                   Address: {contract.contractAddress.slice(0, 10)}...
                   {contract.contractAddress.slice(-8)}
                 </div>
                 <div className="font-light text-sm">
-                  Deployed on: {new Date().toLocaleDateString()} {/* Replace with actual deployment date if available */}
+                  Deployed on: {new Date(contract.deploymentDate).toLocaleDateString()}
                 </div>
               </div>
             );
