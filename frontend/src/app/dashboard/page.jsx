@@ -57,7 +57,7 @@ const DashboardPage = () => {
       const code = await getSolidityCode(contract.solidityFilePath);
       
       // Get the appropriate agent path based on chain ID
-      const chainInfo = getChainInfo(contract.chainId);
+      const chainInfo = await getChainInfo(contract.chainId);
       
       // Store the code in localStorage for the agent page to access
       localStorage.setItem('loadedContractCode', code);
@@ -123,12 +123,12 @@ const DashboardPage = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    {/* <button
+                    <button
                       onClick={() => handleViewCode(contract)}
                       className="text-2xl p-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700 transition-colors"
                     >
                       <FaCode />
-                    </button> */}
+                    </button>
                     <Link
                       href={contract.blockExplorerUrl}
                       className="text-2xl p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors"

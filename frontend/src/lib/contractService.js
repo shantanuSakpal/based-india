@@ -71,7 +71,8 @@ const getSolidityCode = async (filePath) => {
         // Convert blob to text
         const code = await blob.text();
         
-        console.log("Successfully retrieved Solidity code");
+        
+        console.log("Successfully retrieved Solidity code", code);
         return code;
     } catch (error) {
         console.error("Error fetching Solidity code:", error);

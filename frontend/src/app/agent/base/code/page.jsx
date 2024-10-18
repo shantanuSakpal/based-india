@@ -205,6 +205,17 @@ export default function Editor() {
       );
     }
 
+    useEffect(() => {
+      const loadedCode = localStorage.getItem('loadedContractCode');
+      if (loadedCode) {
+        setAgentResponse(loadedCode);
+        // Clear the stored code after loading
+        localStorage.removeItem('loadedContractCode');
+      }
+    }, []);
+  
+  
+
     if (result.status === "success") {
       return (
         <div>
