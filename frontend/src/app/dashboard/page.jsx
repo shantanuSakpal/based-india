@@ -123,12 +123,12 @@ const DashboardPage = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button
+                    {/* <button
                       onClick={() => handleViewCode(contract)}
                       className="text-2xl p-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700 transition-colors"
                     >
                       <FaCode />
-                    </button>
+                    </button> */}
                     <Link
                       href={contract.blockExplorerUrl}
                       className="text-2xl p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors"
