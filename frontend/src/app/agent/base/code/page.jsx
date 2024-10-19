@@ -10,7 +10,6 @@ import {useSolidityCodeAgent} from "@/hooks/useSolidityCodeAgent";
 import {Toaster, toast} from "react-hot-toast";
 import {useContractState} from "@/contexts/ContractContext";
 import {saveContractData, saveSolidityCode} from "@/lib/contractService";
-import {GlobalContext} from "@/contexts/UserContext";
 import ContractInteraction from "@/components/ContractInteractions";
 import {PRIVATE_KEY} from "@/utils/config";
 import ConstructorArgsModal from "@/components/ConstructorArgsModal";
@@ -34,7 +33,6 @@ export default function Editor() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const account = useAccount();
-    const {userData} = useContext(GlobalContext);
 
     const BACKEND_URL = "https://msl8g5vbv6.execute-api.ap-south-1.amazonaws.com/prod/api/contract/compile";
     // const BACKEND_URL = "localhost:8080/api/compile";
@@ -146,8 +144,8 @@ export default function Editor() {
                 deploymentDate: new Date().toISOString(),
             };
 
-            if (userData && userData.email) {
-                await saveContractData(contractData, userData.email);
+            if (account && account?.address) {
+                await saveContractData(contractData, account.address);
             } else {
                 console.error("User email not available");
             }
