@@ -15,7 +15,7 @@ export default function SecondaryNavbar() {
     }
   }, []);
   return (
-    <div className="  w-fit z-40 p-2 rounded-full flex  bg-white shadow-lg font-bold">
+    <div className="  w-fit  p-2 rounded-full flex  bg-white shadow-lg font-bold">
       <Link
         href={`/agent/${currentChain}/code`}
         className={` rounded-full px-4 py-2 transition-colors duration-200 ${
