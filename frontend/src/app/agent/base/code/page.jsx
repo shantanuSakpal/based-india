@@ -36,6 +36,9 @@ export default function Editor() {
     const {account, isConnected} = useAccount();
     const {userData} = useContext(GlobalContext);
 
+    const BACKEND_URL = "https://msl8g5vbv6.execute-api.ap-south-1.amazonaws.com/prod/api/contract/compile";
+    // const BACKEND_URL = "localhost:8080/api/compile";
+
     useEffect(() => {
         const loadedCode = localStorage.getItem('loadedContractCode');
         if (loadedCode) {
@@ -55,13 +58,14 @@ export default function Editor() {
                 "Contract.sol"
             );
             const response = await axios.post(
-                "https://msl8g5vbv6.execute-api.ap-south-1.amazonaws.com/prod/api/contract/compile",
+                BACKEND_URL,
                 formData,
                 {
                     headers: {"Content-Type": "multipart/form-data"},
                 }
             );
             setResult(response.data);
+            // console.log("Compilation result:---------------", response.data);
             if (response.data.status === "success") {
                 setContractState((prevState) => ({
                     ...prevState,
@@ -70,9 +74,9 @@ export default function Editor() {
                     isCompiled: true,
                 }));
             }
-            console.log("Compilation result:", response.data);
         } catch (error) {
-            setResult({error: error.message});
+            console.error("Error compiling contract:", error.response.data);
+            setResult(error.response.data);
         } finally {
             setCompiling(false);
         }
@@ -205,14 +209,14 @@ export default function Editor() {
                 </div>
             );
         }
-
-        if (result.errors && result.errors.length > 0) {
-            const error = result.errors[0];
+//show the compilation error
+        if (result.status === "error") {
+            const error = result.message;
             return (
                 <div>
                     <div className="bg-red-100 border border-red-400 text-red-700 p-4 rounded">
                         <h3 className="font-bold">Compilation failed!</h3>
-                        <p>{error.message}</p>
+                        <p>{error}</p>
                     </div>
                 </div>
             );

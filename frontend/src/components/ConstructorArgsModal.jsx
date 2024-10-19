@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {Input, Button} from '@nextui-org/react';
-
-import ethers from 'ethers';
+import {ethers} from 'ethers';
 
 const ConstructorArgsModal = ({abi, onSubmit}) => {
     const [constructorInputs, setconstructorInputs] = useState([]);

@@ -52,6 +52,7 @@ const compileSolidity = (req, res) => {
         // Check for compilation errors or warnings
         if (output.errors && output.errors.length > 0) {
           success = 0; // Set to 0 if there are errors
+          console.error('Compilation errors:', output.errors);
           return res.status(200).json({
             status: 'error',
             success,
