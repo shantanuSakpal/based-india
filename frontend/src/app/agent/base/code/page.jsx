@@ -7,7 +7,6 @@ import axios from "axios";
 import WalletConnectButton from "@/components/WalletConnectButton"
 import {useAccount} from "wagmi";
 import {useSolidityCodeAgent} from "@/hooks/useSolidityCodeAgent";
-import {FaClipboard, FaClipboardCheck} from "react-icons/fa";
 import {Toaster, toast} from "react-hot-toast";
 import {useContractState} from "@/contexts/ContractContext";
 import {saveContractData, saveSolidityCode} from "@/lib/contractService";
@@ -15,6 +14,7 @@ import {GlobalContext} from "@/contexts/UserContext";
 import ContractInteraction from "@/components/ContractInteractions";
 import {PRIVATE_KEY} from "@/utils/config";
 import ConstructorArgsModal from "@/components/ConstructorArgsModal";
+import SecondaryNavbar from "@/components/SecondaryNavbar";
 
 export default function Editor() {
     const {
@@ -33,7 +33,7 @@ export default function Editor() {
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const {account, isConnected} = useAccount();
+    const account = useAccount();
     const {userData} = useContext(GlobalContext);
 
     const BACKEND_URL = "https://msl8g5vbv6.execute-api.ap-south-1.amazonaws.com/prod/api/contract/compile";
@@ -288,11 +288,11 @@ export default function Editor() {
     return (
         <div className="">
             <Toaster/>
-            {isModalOpen &&  result && result.status === "success" && (
+            {isModalOpen && result && result.status === "success" && (
                 <ConstructorArgsModal
                     abi={result.abi}
-                    onSubmit={(args) => {
-                        DeployContract({constructorArgs: args});
+                    onSubmit={async (args) => {
+                        await DeployContract({constructorArgs: args});
                         setIsModalOpen(false);
                     }}
                 />
@@ -304,7 +304,7 @@ export default function Editor() {
                             <div className="flex items-center space-x-4">
                                 <Avatar isBordered radius="md" src="/chain/base-logo.png"/>
                                 <div className="flex-grow">
-                                    {isConnected ? (
+                                    {account?.isConnected ? (
                                         <div className="flex items-center justify-between">
                       <span className="text-green-600 font-semibold">
                         Connected
@@ -314,7 +314,9 @@ export default function Editor() {
                                         <span className="text-gray-600">Not connected</span>
                                     )}
                                 </div>
-                                <WalletConnectButton/>
+                                <SecondaryNavbar />
+
+
                             </div>
                         </div>
                         <div className="my-3 h-48 mb-14">
@@ -329,7 +331,7 @@ export default function Editor() {
 
                         <div className="max-w-xl">
                             {
-                                isConnected ? (
+                                account?.isConnected ? (
                                     <Button
                                         disabled={inputDisabled}
                                         onClick={() => handleRunAgent(userPrompt)}
@@ -337,10 +339,10 @@ export default function Editor() {
                                     >
                                         {inputDisabled ? progressMessage : "Generate code"}
                                     </Button>
-                                ):(
-                                  <WalletConnectButton
-                                  text="Connect Wallet to Generate Code"
-                                  />
+                                ) : (
+                                    <WalletConnectButton
+                                        text="Connect Wallet to Generate Code"
+                                    />
                                 )
                             }
                         </div>
@@ -348,7 +350,7 @@ export default function Editor() {
                         <div className="my-5">
                             <RenderResult/>
                         </div>
-                        {isConnected ? (
+                        {account?.isConnected ? (
                             <ContractInteraction/>
                         ) : (
                             <div className="text-gray-600 ">
@@ -369,7 +371,7 @@ export default function Editor() {
 
                             {/*compile and deploy buttons*/}
                             {
-                                isConnected && (
+                                account?.isConnected && (
                                     <div className="py-2">
                                         <Button
                                             color="default"

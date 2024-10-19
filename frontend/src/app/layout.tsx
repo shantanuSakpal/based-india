@@ -24,8 +24,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-theme-off-white pt-16 min-h-screen">
         <Providers>
-          <Navbar />
-          <OnchainProviders>{children}</OnchainProviders>
+          <OnchainProviders>
+            <Navbar />
+            {children}
+          </OnchainProviders>
           <Footer />
         </Providers>
       </body>
