@@ -52,6 +52,7 @@ export function useSolidityCodeAgent() {
           console.log("agent response", accumulatedResponse);
           const processed_ans = removeSolidityFormatting(accumulatedResponse);
           setAgentResponse(processed_ans);
+            localStorage.setItem('loadedContractCode', processed_ans);
           setInputDisabled(false);
           clearInterval(intervalId);
         }

@@ -41,10 +41,8 @@ const formatValue = (value, type) => {
         case 'bool':
             return Boolean(value);
         case 'string':
-            // Handle empty string case
             return value === '0x' ? '' : value;
         default:
-            // Handle uint/int types
             if (type.startsWith('uint')) {
                 try {
                     return formatUnits(value, 0);
@@ -59,6 +57,42 @@ const formatValue = (value, type) => {
     }
 };
 
+// Component to render a single output value
+const OutputValue = ({ value, label }) => {
+    if (value === null || value === undefined) return null;
+
+    if (Array.isArray(value)) {
+        return (
+            <div className="ml-2">
+                <span className="font-medium">{label}:</span>
+                <ul className="list-disc ml-4">
+                    {value.map((item, index) => (
+                        <li key={index}>{String(item)}</li>
+                    ))}
+                </ul>
+            </div>
+        );
+    }
+
+    if (typeof value === 'boolean') {
+        return (
+            <div className="ml-2">
+                <span className="font-medium">{label}:</span>{' '}
+                <span className={value ? 'text-green-600' : 'text-red-600'}>
+                    {value.toString()}
+                </span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="ml-2">
+            <span className="font-medium">{label}:</span>{' '}
+            <span className="font-mono">{String(value)}</span>
+        </div>
+    );
+};
+
 const ContractReadFunction = ({
                                   func,
                                   address,
@@ -68,37 +102,27 @@ const ContractReadFunction = ({
                               }) => {
     const [error, setError] = useState(null);
 
-    // Get input values from results
     const inputs = results[func.name]?.inputs || {};
     const args = Object.values(inputs);
-
-    // Find output definition from ABI
     const outputDefinition = func.outputs || [];
+    const currentResult = results[func.name]?.result;
 
     const handleRead = async () => {
         try {
             console.log("Calling view function", func.name, "with args:", args);
 
-            // Enhanced contract call with explicit configuration
             const data = await readContract(config, {
                 address: address,
                 abi: abi,
                 functionName: func.name,
                 args: args.length > 0 ? args : undefined,
-                // Add additional options for troubleshooting
-                account: undefined, // explicitly set to undefined for read calls
+                account: undefined,
                 chainId: config.chainId,
             });
 
             console.log("Raw response:", data);
 
-            // Special handling for string returns
-            let parsedData;
-            if (outputDefinition.length === 1 && outputDefinition[0].type === 'string' && data === '0x') {
-                parsedData = '';
-            } else {
-                parsedData = parseOutputData(data, outputDefinition);
-            }
+            const parsedData = parseOutputData(data, outputDefinition);
 
             setResults(prev => ({
                 ...prev,
@@ -111,16 +135,11 @@ const ContractReadFunction = ({
             }));
 
             console.log("Parsed data:", parsedData);
+            setError(null);
 
         } catch (err) {
             console.error("Error reading contract:", err);
-
-            // Enhanced error handling
-            let errorMessage = err.message;
-            if (err.cause) {
-                errorMessage += `\nCause: ${err.cause}`;
-            }
-
+            const errorMessage = err.cause ? `${err.message}\nCause: ${err.cause}` : err.message;
             setError(errorMessage);
 
             setResults(prev => ({
@@ -144,13 +163,24 @@ const ContractReadFunction = ({
                 >
                     {`Call ${func.name}`}
                 </button>
-
-
             </div>
 
             {error && (
-                <div className="text-red-500 text-sm">
+                <div className="text-red-500 text-sm mt-2">
                     {error}
+                </div>
+            )}
+
+            {currentResult && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                    <h3 className="font-semibold mb-2">Results:</h3>
+                    {typeof currentResult === 'object' ? (
+                        Object.entries(currentResult).map(([key, value]) => (
+                            <OutputValue key={key} label={key} value={value} />
+                        ))
+                    ) : (
+                        <OutputValue label="Output" value={currentResult} />
+                    )}
                 </div>
             )}
         </div>

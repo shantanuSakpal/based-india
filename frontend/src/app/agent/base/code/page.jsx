@@ -85,7 +85,7 @@ export default function Editor() {
     const DeployContract = async ({constructorArgs}) => {
 
         console.log("Deploying contract...");
-
+        setIsModalOpen(false);
         try {
             setIsDeploying(true);
 
@@ -191,7 +191,7 @@ export default function Editor() {
         setAgentResponse(code);
         localStorage.setItem('loadedContractCode', code);
     };
-
+setAgentResponse
     //useEffect to monitor sugeestion changes and compile code
     const RenderResult = () => {
         const [ABIcopied, setABICopied] = useState(false);
@@ -290,10 +290,10 @@ export default function Editor() {
             <Toaster/>
             {isModalOpen  && (
                 <ConstructorArgsModal
+                    setIsModalOpen={setIsModalOpen}
                     abi={result.abi}
                     onSubmit={async (args) => {
                         await DeployContract({constructorArgs: args});
-                        setIsModalOpen(false);
                     }}
                 />
             )}
@@ -362,6 +362,8 @@ export default function Editor() {
                         )}
                     </Card>
                 </div>
+
+                {/*code editor part*/}
                 <div className="w-1/2 p-4 flex flex-col">
                     <Card className="flex-grow">
                         <CardHeader className="flex justify-between items-center px-4 py-2">

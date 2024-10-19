@@ -128,14 +128,7 @@ const ContractInteraction = () => {
                                         </Transaction>
                                     )}
 
-                                    {results[func.name]?.result && (
-                                        <div className="mt-2">
-                                            <strong>Result:</strong>{" "}
-                                            <span className="break-all">
-                                                {results[func.name].result}
-                                            </span>
-                                        </div>
-                                    )}
+
                                 </div>
                             </AccordionItem>
                         );

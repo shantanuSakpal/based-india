@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import {Input, Button} from '@nextui-org/react';
 import {ethers} from 'ethers';
+import {FaTimes} from "react-icons/fa";
 
-const ConstructorArgsModal = ({abi, onSubmit}) => {
+const ConstructorArgsModal = ({abi, onSubmit, setIsModalOpen}) => {
     const [constructorInputs, setconstructorInputs] = useState([]);
     const [constructorValues, setConstructorValues] = useState({});
     const [error, setError] = useState('');
@@ -70,7 +71,11 @@ const ConstructorArgsModal = ({abi, onSubmit}) => {
 
     return (
         <div className="left-0 top-0 fixed w-screen h-screen bg-opacity-60  bg-gray-900  flex items-center justify-center z-40">
-            <div className="bg-white rounded p-5 ">
+            <div className="bg-white rounded p-5 relative">
+                <button className="absolute top-3 right-3"
+                onClick={()=>{setIsModalOpen(false)}}>
+                    <FaTimes/>
+                </button>
                 <h3 className="text-lg font-semibold mb-4">Constructor Arguments</h3>
                 {constructorInputs.map((input, index) => (
                     <div key={index} className="mb-4">
