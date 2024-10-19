@@ -14,6 +14,7 @@ import {saveContractData, saveSolidityCode} from "@/lib/contractService";
 import {GlobalContext} from "@/contexts/UserContext";
 import ContractInteraction from "@/components/ContractInteractions";
 import {PRIVATE_KEY} from "@/utils/config";
+import ConstructorArgsModal from "@/components/ConstructorArgsModal";
 
 export default function Editor() {
     const {
@@ -23,13 +24,16 @@ export default function Editor() {
         setAgentResponse,
         progressMessage,
     } = useSolidityCodeAgent();
+
     const [userPrompt, setUserPrompt] = useState("");
     const [result, setResult] = useState(null);
     const {setContractState, contractState} = useContractState();
-    const {account, isConnected} = useAccount();
     const [isCompiling, setCompiling] = useState(false);
     const [isDeploying, setIsDeploying] = useState(false);
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const {account, isConnected} = useAccount();
     const {userData} = useContext(GlobalContext);
 
     useEffect(() => {
@@ -66,6 +70,7 @@ export default function Editor() {
                     isCompiled: true,
                 }));
             }
+            console.log("Compilation result:", response.data);
         } catch (error) {
             setResult({error: error.message});
         } finally {
@@ -73,11 +78,8 @@ export default function Editor() {
         }
     };
 
-    const DeployContract = async () => {
-        if (!result || result.status !== "success") {
-            toast.error("Please compile the contract successfully before deploying.");
-            return;
-        }
+    const DeployContract = async ({constructorArgs}) => {
+
         console.log("Deploying contract...");
 
         try {
@@ -115,7 +117,8 @@ export default function Editor() {
             );
 
             console.log("Deploying contract...");
-            const contract = await contractFactory.deploy();
+            // Deploy with constructor arguments if they exist
+            const contract = await contractFactory.deploy(...constructorArgs);
             await contract.deployed();
 
             // Determine block explorer URL based on the network
@@ -171,7 +174,7 @@ export default function Editor() {
             setError(error);
             console.error("Error deploying contract:", error);
             if (error.code === "INVALID_ARGUMENT") {
-                toast.error("Invalid private key");
+                toast.error("Invalid constructor arguments or private key");
             } else {
                 toast.error(`Error deploying contract: ${error.message}`);
             }
@@ -259,9 +262,37 @@ export default function Editor() {
         );
     };
 
+    const handleDeployContract = async () => {
+        //check if the contract has been compiled
+        if (!result || result.status !== "success") {
+            toast.error("Please compile the contract successfully before deploying.");
+            return;
+        }
+
+        //check if contract has constructor arguments in result.abi
+        if (result.abi.filter((item) => item.type === "constructor").length > 0) {
+            setIsModalOpen(true);
+            return;
+        }
+
+        //deploy contract
+        await DeployContract({
+            constructorArgs: [],
+        });
+    }
+
     return (
         <div className="">
             <Toaster/>
+            {isModalOpen &&  result && result.status === "success" && (
+                <ConstructorArgsModal
+                    abi={result.abi}
+                    onSubmit={(args) => {
+                        DeployContract({constructorArgs: args});
+                        setIsModalOpen(false);
+                    }}
+                />
+            )}
             <div className="flex ">
                 <div className="w-1/2 p-2">
                     <Card className="flex-grow h-full p-6">
@@ -345,7 +376,7 @@ export default function Editor() {
                                         </Button>
                                         <Button
                                             color="success"
-                                            onClick={DeployContract}
+                                            onClick={handleDeployContract}
                                             isLoading={isDeploying}
                                             className="ml-4"
                                         >

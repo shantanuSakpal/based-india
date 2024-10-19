@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useReadContract } from 'wagmi';
+import React, { useState } from 'react';
+import { readContract } from '@wagmi/core';
+import { config } from "@/utils/config";
+import { formatUnits } from 'viem';
 
 // Utility function to parse ABI output
 const parseOutputData = (data, outputs) => {
@@ -21,7 +23,7 @@ const parseOutputData = (data, outputs) => {
     return data;
 };
 
-// Format individual values based on their ABI type
+// Enhanced format value function
 const formatValue = (value, type) => {
     if (value === undefined || value === null) return null;
 
@@ -39,10 +41,18 @@ const formatValue = (value, type) => {
         case 'bool':
             return Boolean(value);
         case 'string':
-            return value;
+            // Handle empty string case
+            return value === '0x' ? '' : value;
         default:
             // Handle uint/int types
-            if (type.startsWith('uint') || type.startsWith('int')) {
+            if (type.startsWith('uint')) {
+                try {
+                    return formatUnits(value, 0);
+                } catch {
+                    return value.toString();
+                }
+            }
+            if (type.startsWith('int')) {
                 return value.toString();
             }
             return value;
@@ -62,14 +72,6 @@ const ContractReadFunction = ({
     const inputs = results[func.name]?.inputs || {};
     const args = Object.values(inputs);
 
-    // Setup wagmi contract read hook
-    const { data, isError } = useReadContract({
-        functionName: func.name,
-        abi,
-        address,
-        args: args,
-    });
-
     // Find output definition from ABI
     const outputDefinition = func.outputs || [];
 
@@ -77,12 +79,26 @@ const ContractReadFunction = ({
         try {
             console.log("Calling view function", func.name, "with args:", args);
 
-            if (isError) {
-                throw new Error("Contract read failed");
-            }
+            // Enhanced contract call with explicit configuration
+            const data = await readContract(config, {
+                address: address,
+                abi: abi,
+                functionName: func.name,
+                args: args.length > 0 ? args : undefined,
+                // Add additional options for troubleshooting
+                account: undefined, // explicitly set to undefined for read calls
+                chainId: config.chainId,
+            });
 
-            // Parse the output data according to ABI
-            const parsedData = parseOutputData(data, outputDefinition);
+            console.log("Raw response:", data);
+
+            // Special handling for string returns
+            let parsedData;
+            if (outputDefinition.length === 1 && outputDefinition[0].type === 'string' && data === '0x') {
+                parsedData = '';
+            } else {
+                parsedData = parseOutputData(data, outputDefinition);
+            }
 
             setResults(prev => ({
                 ...prev,
@@ -98,14 +114,21 @@ const ContractReadFunction = ({
 
         } catch (err) {
             console.error("Error reading contract:", err);
-            setError(err.message);
+
+            // Enhanced error handling
+            let errorMessage = err.message;
+            if (err.cause) {
+                errorMessage += `\nCause: ${err.cause}`;
+            }
+
+            setError(errorMessage);
 
             setResults(prev => ({
                 ...prev,
                 [func.name]: {
                     ...prev[func.name],
                     result: null,
-                    error: err.message,
+                    error: errorMessage,
                     timestamp: Date.now()
                 }
             }));
@@ -113,15 +136,20 @@ const ContractReadFunction = ({
     };
 
     return (
-        <div>
-            <button
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                onClick={handleRead}
-            >
-                {`Call ${func.name}`}
-            </button>
+        <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+                <button
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                    onClick={handleRead}
+                >
+                    {`Call ${func.name}`}
+                </button>
+
+
+            </div>
+
             {error && (
-                <div className="text-red-500 mt-2">
+                <div className="text-red-500 text-sm">
                     {error}
                 </div>
             )}

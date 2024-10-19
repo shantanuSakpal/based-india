@@ -1,3 +1,6 @@
+import { http, createConfig } from '@wagmi/core'
+import { mainnet, sepolia, baseSepolia } from '@wagmi/core/chains'
+
 // use NODE_ENV to not have to change config based on where it's deployed
 export const NEXT_PUBLIC_URL =
   process.env.NODE_ENV === "development"
@@ -9,3 +12,10 @@ export const NEXT_PUBLIC_ONCHAINKIT_API_KEY =
 export const NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID =
   process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 export const PRIVATE_KEY = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+
+export const config = createConfig({
+    chains: [ baseSepolia],
+    transports: {
+        [baseSepolia.id]: http(),
+    },
+})
