@@ -288,7 +288,7 @@ export default function Editor() {
     return (
         <div className="">
             <Toaster/>
-            {isModalOpen && result && result.status === "success" && (
+            {isModalOpen  && (
                 <ConstructorArgsModal
                     abi={result.abi}
                     onSubmit={async (args) => {
