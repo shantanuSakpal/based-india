@@ -16,15 +16,15 @@ function App() {
             chatLink: "/agent/base/chat",
             codeLink: "/agent/base/code"
          },
-        // {
-        //     name: "Optimism",
-        //     logo: "/chain/optimism-logo.png",
-        //     description: "The fast and affordable platform powering teams of all sizes. Join Base, Zora, OP Mainnet, Farcaster, and hundreds more on the Superchain.",
-        //     backgroundColor: "bg-theme-gray-light",
-        //     buttonColor: "bg-theme-gray-dark",
-        //     chatLink: "/agent/optimism/chat",
-        //     codeLink: "/agent/optimism/code"
-        // },
+        {
+            name: "Optimism",
+            logo: "/chain/optimism-logo.png",
+            description: "The fast and affordable platform powering teams of all sizes. Join Base, Zora, OP Mainnet, Farcaster, and hundreds more on the Superchain.",
+            backgroundColor: "bg-theme-gray-light",
+            buttonColor: "bg-theme-gray-dark",
+            chatLink: "/agent/optimism/chat",
+            codeLink: "/agent/optimism/code"
+        },
     ];
 
     return (
