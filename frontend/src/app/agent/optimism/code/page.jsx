@@ -14,15 +14,6 @@ import ContractInteraction from "@/components/ContractInteractions";
 import { PRIVATE_KEY } from "@/utils/config";
 import ConstructorArgsModal from "@/components/ConstructorArgsModal";
 import SecondaryNavbar from "@/components/SecondaryNavbar";
-import { isWalletACoinbaseSmartWallet } from "@coinbase/onchainkit/wallet";
-import { http } from "viem";
-import { baseSepolia } from "wagmi/chains";
-import { createPublicClient } from "viem";
-
-export const publicClient = createPublicClient({
-  chain: baseSepolia,
-  transport: http(),
-});
 
 export default function Editor() {
   const {
@@ -40,7 +31,6 @@ export default function Editor() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSmartWallet, setIsSmartWallet] = useState(false);
 
   const account = useAccount();
   const userOperation = { sender: "0x123" };
@@ -111,23 +101,9 @@ export default function Editor() {
       const network = await provider.getNetwork();
       console.log("Network chainId:", network.chainId);
 
-      let is_smart_wallet = await isWalletACoinbaseSmartWallet({
-        client: publicClient,
-        userOp: userOperation,
-      });
-      setIsSmartWallet(is_smart_wallet.isCoinbaseSmartWallet);
-      console.log(
-        "is wallet a smart wallet",
-        is_smart_wallet.isCoinbaseSmartWallet
-      );
-
-      //if its a smart wallet and the chain is not base or base sepolia, show error
-      if (
-        (is_smart_wallet.isCoinbaseSmartWallet && network.chainId !== 8453) ||
-        (is_smart_wallet.isCoinbaseSmartWallet && network.chainId !== 84532)
-      ) {
+      if (network.chainId !== 8453 && network.chainId !== 84532) {
         toast.error(
-          "Smat wallet only supporrts deployment on base or base sepolia. \nPlease connect another wallet."
+          "Provider is not connected to Base Mainnet or Base Sepolia Testnet."
         );
         return;
       }
