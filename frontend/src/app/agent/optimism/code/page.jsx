@@ -50,6 +50,20 @@ export default function Editor() {
 
   const compileCode = async () => {
     setCompiling(true);
+    //if agent response is empty
+    if (!agentResponse) {
+      toast.error("Nothing to compile! .");
+      setCompiling(false);
+      return;
+    }
+
+    //if agent response contains import statements
+    if (agentResponse.includes("import")) {
+      toast.error("Importing contracts is not yet supported :(");
+      setCompiling(false);
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append(
