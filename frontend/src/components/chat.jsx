@@ -339,7 +339,7 @@ const Chat = ({
           </div>
         ) : (
           <div className="text-center text-gray-400  text-3xl  my-auto flex mt-40 justify-center items-center">
-            <p>Answers will apper here!</p>
+            <p>Answers will appear here!</p>
           </div>
         )}
       </div>
