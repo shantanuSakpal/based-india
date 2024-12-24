@@ -57,7 +57,7 @@ export default function Editor() {
       return;
     }
 
-    //if agent response contains import statements
+    //if agent response contains import statements,
     if (agentResponse.includes("import")) {
       toast.error("Importing contracts is not yet supported :(");
       setCompiling(false);
